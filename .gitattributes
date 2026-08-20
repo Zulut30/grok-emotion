@@ -1,0 +1,5 @@
+# Normalize line endings: LF in the repository, CRLF on Windows checkouts.
+* text=auto
+
+# Binary assets stay untouched.
+*.png binary
