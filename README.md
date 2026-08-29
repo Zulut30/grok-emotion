@@ -1,8 +1,12 @@
 # Emotion Studio
 
-Интерактивная лаборатория анимированных аватаров для персональных ИИ-агентов. Она объединяет редактор внешнего вида, 39 эмоций и рабочих состояний, сохранение пресетов и готовый способ внедрения через `embed.js`.
+Интерактивная лаборатория анимированных аватаров для персональных ИИ-агентов. Она объединяет редактор внешнего вида, 39 эмоций и рабочих состояний, 18 форм, палитру и готовый браузерный API для внедрения в чат.
 
-Живая версия: [grok-emotion.vercel.app](https://grok-emotion.vercel.app)
+- [Открыть Emotion Studio](https://grok-emotion.vercel.app)
+- [Открыть готовый пример чата с настройками](https://grok-emotion.vercel.app/examples/chat)
+- [Полное руководство по API и интеграции](./docs/INTEGRATION.md)
+- [Практическая интеграция в чат/ИИ-агента](./docs/CHAT-INTEGRATION.md)
+- [Машиночитаемый manifest](https://grok-emotion.vercel.app/manifest.json)
 
 ## Возможности
 
@@ -14,6 +18,10 @@
 - автоцикл и ручной перезапуск одноразовых эффектов;
 - автономный embed-режим без зависимости от стека основного приложения;
 - готовые методы `setState`, `setShape`, `setColor`, `update` и `destroy`.
+- готовая панель выбора формы, анимации и цвета для конкретного чата;
+- `manifest.json` для автоматической генерации настроек;
+- примеры для обычного JavaScript, React, Next.js и Vue;
+- подписка `onChange()` и DOM-событие `grok-emotion:change` для сохранения выбора.
 
 ## Локальный запуск
 
@@ -43,6 +51,29 @@ python3 -m http.server 8765
 </script>
 ```
 
+### Выбор формы и цвета в интерфейсе чата
+
+Все варианты уже экспортируются самим скриптом:
+
+```js
+GrokEmotion.shapes.forEach((shape) => {
+  shapeSelect.add(new Option(shape, shape));
+});
+
+GrokEmotion.colors.forEach((theme) => {
+  const button = document.createElement("button");
+  button.style.background = theme.value;
+  button.setAttribute("aria-label", theme.name);
+  button.onclick = () => avatar.setColor(theme.value, theme.eyes);
+  palette.append(button);
+});
+
+shapeSelect.onchange = () => avatar.setShape(shapeSelect.value);
+stateSelect.onchange = () => avatar.setState(stateSelect.value);
+```
+
+Полная реализация находится в [`examples/chat.html`](./examples/chat.html). Выбор сохраняется в `localStorage`; в реальном приложении сохраните `{ shape, color, eyes }` в профиле пользователя или настройках конкретного чата.
+
 ### Связь с событиями агента
 
 ```js
@@ -61,10 +92,13 @@ avatar.setShape("cloud");
 avatar.setColor("#dc3188", "#16040d");
 avatar.update({ state: "working", shape: "hex", size: 240 });
 avatar.replay();
+avatar.getConfig();
+const unsubscribe = avatar.onChange((config) => saveAvatar(config));
+unsubscribe();
 avatar.destroy();
 ```
 
-`GrokEmotion.states` и `GrokEmotion.shapes` содержат полный список поддерживаемых значений.
+`GrokEmotion.states`, `GrokEmotion.shapes` и `GrokEmotion.colors` содержат полный список поддерживаемых значений. Та же информация доступна как JSON в [`manifest.json`](./manifest.json).
 
 ## Как работает embed
 
@@ -80,6 +114,10 @@ avatar.destroy();
 
 - `index.html` — Emotion Studio и автономный движок;
 - `embed.js` — лёгкий адаптер для внедрения;
+- `manifest.json` — публичный каталог форм, цветов, состояний и значений по умолчанию;
+- `examples/chat.html` — рабочий чат с персонализацией аватара;
+- `docs/INTEGRATION.md` — полный справочник API, форм, цветов, состояний и фреймворков;
+- `docs/CHAT-INTEGRATION.md` — модель данных и сценарии интеграции с жизненным циклом ИИ-агента;
 - `src/shapes-module.js` — аннотированные формы и выражения;
 - `src/grokbot-module.js` — аннотированный движок состояний;
 - `vercel.json` — настройки статического деплоя.
