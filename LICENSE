@@ -1,19 +1,1 @@
-# License
 
-**All rights reserved.**
-
-This repository is a technical showcase that faithfully reproduces the
-interactive Grok Bot icon from https://x.ai/bot for educational and reference
-purposes.
-
-The SVG artwork, the animation engine code, and the "Grok" / "xAI" names and
-trademarks are owned by xAI. They are reproduced here for study only:
-
-- Redistribution, commercial use, or modification of the reproduced artwork
-  or code is **not permitted**.
-- No rights to the original assets are granted by this repository.
-
-The project-specific documentation (README, file structure) is provided "as
-is" with no warranty.
-
-For any other use of the original assets, please contact xAI.
