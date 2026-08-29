@@ -2,6 +2,8 @@
 
 Интерактивная лаборатория анимированных аватаров для персональных ИИ-агентов. Она объединяет редактор внешнего вида, 39 эмоций и рабочих состояний, сохранение пресетов и готовый способ внедрения через `embed.js`.
 
+Живая версия: [grok-emotion.vercel.app](https://grok-emotion.vercel.app)
+
 ## Возможности
 
 - 18 форм головы: от `blob` и `bean` до `cloud`, `teardrop` и `leaf`;
@@ -27,7 +29,7 @@ python3 -m http.server 8765
 
 ```html
 <div id="agent-avatar" style="width:280px;height:280px"></div>
-<script src="https://YOUR-DEPLOYMENT.vercel.app/embed.js"></script>
+<script src="https://grok-emotion.vercel.app/embed.js"></script>
 <script>
   const avatar = GrokEmotion.mount("#agent-avatar", {
     state: "idle",
