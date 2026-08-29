@@ -1,84 +1,87 @@
-# Grok Bot — Interactive Icon
+# Emotion Studio
 
-A self-contained, dependency-free showcase of the **interactive Grok bot icon** — the animated, cursor-following robot head. Open one file, move your mouse over the bot, and watch the eyes track your cursor while the character cycles through its emotional states.
+Интерактивная лаборатория анимированных аватаров для персональных ИИ-агентов. Она объединяет редактор внешнего вида, 39 эмоций и рабочих состояний, сохранение пресетов и готовый способ внедрения через `embed.js`.
 
-| | |
-|---|---|
-| Output | a single `index.html` — React inlined, no server, no CDN, works from `file://` |
-| Tech | SVG + React + a tiny spring-physics animation engine |
-| Note | faithful reproduction of the Grok Bot icon from [x.ai/bot](https://x.ai/bot); artwork © xAI |
+## Возможности
 
-![Grok Bot interactive icon](preview.png)
+- 18 форм головы: от `blob` и `bean` до `cloud`, `teardrop` и `leaf`;
+- 11 цветовых тем с контрастным цветом глаз;
+- 39 состояний: эмоции, жизненный цикл, спецэффекты и действия;
+- поиск и фильтры по библиотеке состояний;
+- сохранение собственных аватаров в `localStorage`;
+- автоцикл и ручной перезапуск одноразовых эффектов;
+- автономный embed-режим без зависимости от стека основного приложения;
+- готовые методы `setState`, `setShape`, `setColor`, `update` и `destroy`.
 
-## Demo
+## Локальный запуск
 
-Open [`index.html`](index.html) in any modern browser (double-click is fine) and**move your cursor over the bot** — the eyes smoothly follow the pointer while
-the character runs its state cycles:
+Проект не требует сборки или установки зависимостей.
 
-- the headline bot cycles `waking → idle → happy → idle → curious`
-- the large bot cycles `idle → curious → bored → happy → playful`
-
-## Features
-
-- **Cursor tracking** — the eyes follow the mouse via critically-damped spring physics, not a linear tween
-- **30+ emotional states** — `idle`, `happy`, `curious`, `bored`, `sleeping`,`waking`, `thinking`, `angry`, ... plus agent morphs (`orbit`, `radar`,`progress`) and product-lifecycle states (`writing`, `sending`, `receiving`,`notifying`, ...)
-- **25 eye expressions** that morph into each other with per-point ring interpolation (the "melting" transitions)
-- **Ring effects** — thinking dots, orbit, radar, progress, confetti bursts,spins and bounces
-- **Reduced-motion support** (`prefers-reduced-motion`)
-- **Fully offline** — zero external requests
-
-## How it works
-
-The icon is **not a CSS animation**. It is a data-driven SVG component with a tiny physics engine, and everything runs inside one `requestAnimationFrame`
-loop. Three layers:
-
-### 1. Shapes & expressions are *data* (`src/shapes-module.js`)
-
-- **Expressions** — 25 eye shapes, each stored as **point-rings** (~50 `[x, y]`samples per eye)
-- **Geometry helpers** — `HEAD_C = 114.2705` (centre of the viewBox),`centroid`, `lerpRing` (per-point interpolation between two rings), `ringPath`
-- **Shapes** — 17 head silhouettes (`blob`, `bean`, `cloud`, `shield`, `hex`,...). Each is built by `E()`, a shape builder that:
-  - normalises the outline to the head's coordinate system
-  - raycasts a **96-point interpolatable ring**
-  - pre-computes `top` / `bottom` / `spanAt(y)` lookup tables for per-frame eye clamping
-  - **brute-force searches where to place the eyes** (maximises eye area while staying close to the centre)
-
-### 2. Motion is *physics* (`src/grokbot-module.js`)
-
-- Every animated property is a **spring object** `{ x, v, t }` integrated with a critically-damped spring — `v += (−2ζω·v − ω²(x − target))·dt` at a fixed `1/120 s` timestep
-- A **state machine** maps each state to expression indices and timing ranges (`f`, `A`, `m` tables); every state's case sets spring targets as sine
-  combinations of elapsed time — e.g. `happy` squeezes the eyes into arcs,`waking` squints then pops open with a confetti burst
-- A **`requestAnimationFrame` loop** re-renders the head/eye paths from the interpolated rings every frame and writes SVG attributes **directly via refs — React never re-renders during animation**
-- A **particle system** spawns coloured confetti / stars on hidden layers
-
-### 3. Interaction
-
-When `mouseInteractive` is on, a `pointermove` listener feeds cursor coordinates into a ref; the loop maps them to a gaze direction (clamped to ±0.6 of the head width), and the spring-smoothed offset drives the eyes' `transform`.
-
-### 4. Colours come from CSS variables
-
-The SVG uses `.grok-bot-mark__head { fill: var(--fg) }` and`.grok-bot-mark__eye { fill: var(--bg) }`; the page provides `--fg` / `--bg`
-(`hsl(var(--primary))` / `hsl(var(--background))`), so the icon inherits the host page's theme.
-
-## Project structure
-
-```
-grok-bot-icon/
-├── index.html              # the showcase — self-contained, double-click to run
-├── preview.png             # screenshot used in this README
-├── src/
-│   ├── shapes-module.js    # annotated & formatted: shapes + expressions + geometry
-│   └── grokbot-module.js   # annotated & formatted: the animation engine
-├── README.md               # this file
-└── README.zh-CN.md         # 中文说明
+```bash
+python3 -m http.server 8765
 ```
 
-## Reading the annotated sources
+После этого откройте `http://127.0.0.1:8765/`.
 
-- `src/shapes-module.js` — start with the header comment, then `E()` (the shape builder) and the `SHAPES` catalog
-- `src/grokbot-module.js` — start with the header comment, then the**per-state motion `switch`**, the spring integrator `k()`, and the `requestAnimationFrame`loop `eU()`
+## Внедрение в ИИ-агента
 
-The single-letter variable names are kept so the annotated files stay traceable to the production implementation.
+```html
+<div id="agent-avatar" style="width:280px;height:280px"></div>
+<script src="https://YOUR-DEPLOYMENT.vercel.app/embed.js"></script>
+<script>
+  const avatar = GrokEmotion.mount("#agent-avatar", {
+    state: "idle",
+    shape: "teardrop",
+    color: "#08a96f",
+    eyes: "#08110d",
+    size: 280
+  });
 
-## Attribution
+  avatar.setState("thinking");
+</script>
+```
 
-The artwork and animation engine are a faithful reproduction of the Grok Bot icon from [x.ai/bot](https://x.ai/bot) and belong to xAI. This project is an independent technical showcase for educational purposes — do not redistribute the artwork commercially. See [LICENSE](LICENSE) — **all rights reserved**.
+### Связь с событиями агента
+
+```js
+agent.on("thinking", () => avatar.setState("thinking"));
+agent.on("tool:start", () => avatar.setState("working"));
+agent.on("response:stream", () => avatar.setState("writing"));
+agent.on("done", () => avatar.setState("happy"));
+agent.on("error", () => avatar.setState("alerting"));
+```
+
+### API контроллера
+
+```js
+avatar.setState("happy");
+avatar.setShape("cloud");
+avatar.setColor("#dc3188", "#16040d");
+avatar.update({ state: "working", shape: "hex", size: 240 });
+avatar.replay();
+avatar.destroy();
+```
+
+`GrokEmotion.states` и `GrokEmotion.shapes` содержат полный список поддерживаемых значений.
+
+## Как работает embed
+
+`embed.js` создаёт изолированный iframe с прозрачным фоном и управляет им через `postMessage`. Поэтому движок анимации не конфликтует с React, Vue, Next.js, CSS и зависимостями приложения агента.
+
+Прямой URL embed-режима:
+
+```text
+/?embed=1&state=thinking&shape=cloud&color=%2308a96f&eyes=%2308110d&size=280
+```
+
+## Структура
+
+- `index.html` — Emotion Studio и автономный движок;
+- `embed.js` — лёгкий адаптер для внедрения;
+- `src/shapes-module.js` — аннотированные формы и выражения;
+- `src/grokbot-module.js` — аннотированный движок состояний;
+- `vercel.json` — настройки статического деплоя.
+
+## Авторство и ограничения
+
+Проект основан на техническом воспроизведении Grok Bot icon из `x.ai/bot`. Графика и исходная анимационная система принадлежат xAI. Сохранена исходная лицензия репозитория; перед публичным или коммерческим использованием проверьте права и при необходимости замените фирменную графику собственной.

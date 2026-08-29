@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Grok Bot — interactive icon (reproduction of x.ai/bot)</title>
+<title>Emotion Studio — animated avatars for AI agents</title>
 <style>
 :root {
   --color-jet: 0 0% 4%;
@@ -12,8 +12,9 @@
   --background: var(--color-white);
   --font-system: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
-html, body { margin: 0; padding: 0; background: #fff; color: #0a0a0a; }
+html, body { margin: 0; padding: 0; background: #0b0b0b; color: #f5f5f5; }
 * { box-sizing: border-box; }
+button, input { font: inherit; }
 
 /* ===== exact bot CSS shipped by x.ai (chunk 2ypo79imiode4.css) ===== */
 .grok-bot-mark{-webkit-user-select:none;user-select:none;width:100%;height:auto;display:block}
@@ -28,11 +29,43 @@ html, body { margin: 0; padding: 0; background: #fff; color: #0a0a0a; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 44px;
-  padding: 48px 24px;
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 14px 18px 40px;
   font-family: var(--font-system);
 }
+.studio-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: min(1400px, 100%);
+  min-height: 64px;
+  padding: 8px 12px 8px 16px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 18px;
+  background: rgba(18,18,18,.92);
+  box-shadow: 0 18px 50px rgba(0,0,0,.24);
+  backdrop-filter: blur(16px);
+}
+.brand { display: flex; align-items: center; gap: 11px; min-width: max-content; }
+.brand-mark { --fg: #08a96f; --bg: #07110d; width: 34px; }
+.brand-name { font-size: 17px; font-weight: 720; letter-spacing: -.02em; }
+.studio-nav { display: flex; align-items: center; gap: 6px; }
+.nav-link {
+  appearance: none;
+  padding: 10px 14px;
+  color: rgba(255,255,255,.62);
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 620;
+}
+.nav-link:hover { color: #fff; background: rgba(255,255,255,.055); }
+.nav-link.active { color: #62dda7; background: rgba(30,181,114,.1); }
+.header-meta { color: rgba(255,255,255,.42); font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
 .headline {
   font-weight: 600;
   font-size: clamp(30px, 5vw, 46px);
@@ -52,12 +85,146 @@ html, body { margin: 0; padding: 0; background: #fff; color: #0a0a0a; }
   vertical-align: baseline;
 }
 .headline .inline-bot svg { width: 100%; height: auto; display: block; }
+.playground {
+  --accent: #08a96f;
+  --accent-contrast: #08110d;
+  display: grid;
+  grid-template-columns: minmax(340px, 430px) minmax(0, 1fr);
+  align-items: start;
+  gap: 18px;
+  width: min(1400px, 100%);
+}
+.preview-card,
+.panel {
+  color: #f5f5f5;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 24px;
+  background: #151515;
+  box-shadow: 0 18px 50px rgba(0,0,0,.12);
+}
+.preview-card {
+  position: sticky;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  min-height: 610px;
+  padding: 26px 24px 22px;
+}
+.preview-heading { align-self: stretch; margin: 0; font-size: 16px; font-weight: 680; }
 .demo-bot {
-  --fg: hsl(var(--primary));
-  --bg: hsl(var(--background));
-  width: min(320px, 72vw);
+  width: min(340px, 100%);
+  margin: auto 0;
   cursor: crosshair;
 }
+.preview-meta { width: 100%; text-align: center; }
+.preview-state {
+  margin: 0;
+  font: 650 14px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.preview-shape {
+  margin: 3px 0 0;
+  color: rgba(255,255,255,.52);
+  font-size: 12px;
+}
+.motion-note {
+  margin: 0;
+  padding: 9px 11px;
+  color: #b8f4d8;
+  border: 1px solid rgba(90,224,162,.24);
+  border-radius: 12px;
+  background: rgba(15,138,87,.14);
+  font-size: 11px;
+  line-height: 1.45;
+  text-align: center;
+}
+.playback-bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.09);
+}
+.playback-status { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--accent); }
+.playback-state { overflow: hidden; text-overflow: ellipsis; font: 600 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.icon-button,
+.secondary-button,
+.primary-button,
+.filter-button,
+.integration-tab {
+  appearance: none;
+  border: 1px solid rgba(255,255,255,.11);
+  background: #222;
+  color: #f5f5f5;
+  cursor: pointer;
+  transition: border-color .16s, background .16s, color .16s, transform .16s;
+}
+.icon-button:hover,
+.secondary-button:hover,
+.filter-button:hover,
+.integration-tab:hover { border-color: rgba(255,255,255,.3); }
+.icon-button { width: 34px; height: 34px; border-radius: 10px; font-size: 16px; }
+.secondary-button,
+.primary-button { border-radius: 11px; padding: 10px 13px; font-size: 12px; font-weight: 680; }
+.primary-button { border-color: var(--accent); background: var(--accent); color: var(--accent-contrast); }
+.primary-button:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.controls-stack { display: flex; flex-direction: column; gap: 18px; }
+.panel { width: 100%; padding: 22px; }
+.panel-title {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 650;
+}
+.picker-section + .picker-section { margin-top: 22px; }
+.picker-label,
+.state-group h3 {
+  margin: 0 0 10px;
+  color: rgba(255,255,255,.46);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+.shape-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(54px, 1fr));
+  gap: 9px;
+}
+.shape-button {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  min-height: 66px;
+  padding: 7px;
+  color: var(--accent);
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: #202020;
+  cursor: pointer;
+  transition: border-color .16s, background .16s, transform .16s;
+}
+.shape-button svg { pointer-events: none; }
+.shape-button:hover { background: #292929; transform: translateY(-1px); }
+.shape-button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.color-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+.color-button {
+  appearance: none;
+  width: 42px;
+  height: 42px;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color .16s, transform .16s;
+}
+.color-button:hover { transform: scale(1.06); }
+.color-button[aria-pressed="true"] { border-color: rgba(255,255,255,.34); }
+.color-swatch { display: block; width: 100%; height: 100%; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
 .hint {
   font-size: 13px;
   color: rgba(10,10,10,.55);
@@ -75,6 +242,151 @@ html, body { margin: 0; padding: 0; background: #fff; color: #0a0a0a; }
   border-radius: 999px;
   padding: 5px 10px;
   font-weight: 600;
+}
+.state-panel {
+  width: 100%;
+}
+.state-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.state-panel__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 650;
+}
+.state-panel__current {
+  margin: 4px 0 0;
+  color: rgba(255,255,255,.54);
+  font-size: 13px;
+}
+.state-panel__current code {
+  color: #fff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.state-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.state-search-wrap { position: relative; flex: 1 1 220px; }
+.state-search {
+  width: 100%;
+  min-height: 38px;
+  padding: 9px 12px 9px 34px;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 11px;
+  outline: none;
+  background: #101010;
+  font-size: 12px;
+}
+.state-search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,.42); font-size: 13px; }
+.filter-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.filter-button,
+.integration-tab { border-radius: 999px; padding: 9px 11px; font-size: 11px; font-weight: 650; }
+.filter-button[aria-pressed="true"],
+.integration-tab[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 11%, #161616); }
+.state-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 22px;
+}
+.state-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.state-button,
+.auto-button {
+  appearance: none;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 999px;
+  background: #222;
+  color: #f5f5f5;
+  cursor: pointer;
+  font: 600 12px/1 var(--font-system);
+  padding: 9px 11px;
+  transition: background .16s, color .16s, border-color .16s, transform .16s;
+}
+.state-button:hover,
+.auto-button:hover { border-color: rgba(255,255,255,.32); transform: translateY(-1px); }
+.state-button:focus-visible,
+.auto-button:focus-visible,
+.shape-button:focus-visible,
+.color-button:focus-visible { outline: 3px solid rgba(70,181,255,.38); outline-offset: 2px; }
+.state-button[aria-pressed="true"],
+.auto-button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+.thinking-hint { display: block; margin-top: 5px; color: #b8f4d8; font-size: 11px; }
+.empty-states { padding: 22px; color: rgba(255,255,255,.48); text-align: center; font-size: 12px; }
+.bottom-grid {
+  display: grid;
+  grid-template-columns: minmax(330px, .75fr) minmax(0, 1.25fr);
+  gap: 18px;
+  width: min(1400px, 100%);
+}
+.panel-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
+.panel-header .panel-title { margin: 0; }
+.avatar-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.avatar-card {
+  appearance: none;
+  min-width: 0;
+  padding: 14px 10px 12px;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px;
+  background: #1d1d1d;
+  cursor: pointer;
+  text-align: center;
+}
+.avatar-card:hover { border-color: rgba(255,255,255,.28); }
+.avatar-card[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.avatar-thumb { width: 72px; max-width: 100%; margin: 0 auto 8px; }
+.avatar-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 680; }
+.avatar-details { display: block; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: rgba(255,255,255,.44); font: 500 10px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.integration-actions { display: flex; align-items: center; gap: 8px; }
+.integration-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.code-block {
+  min-height: 190px;
+  margin: 0;
+  padding: 18px;
+  overflow: auto;
+  color: #9aeac0;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 14px;
+  background: #0c0c0c;
+  font: 500 11px/1.65 ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.integration-note { margin: 12px 0 0; color: rgba(255,255,255,.47); font-size: 11px; line-height: 1.55; }
+.event-map { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 12px; }
+.event-pill { padding: 8px; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; background: #1c1c1c; text-align: center; }
+.event-pill b { display: block; color: rgba(255,255,255,.48); font-size: 9px; font-weight: 650; }
+.event-pill code { display: block; margin-top: 4px; color: var(--accent); font-size: 10px; }
+.embed-mode { background: transparent !important; overflow: hidden; }
+.embed-root { display: grid; place-items: center; width: 100vw; height: 100vh; background: transparent; }
+.embed-avatar { width: min(var(--avatar-size, 280px), 100vw, 100vh); }
+@media (max-width: 1100px) {
+  .playground { grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); }
+  .shape-grid { grid-template-columns: repeat(4, minmax(54px, 1fr)); }
+  .event-map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .studio-header { flex-wrap: wrap; }
+  .studio-nav { order: 3; width: 100%; overflow-x: auto; }
+  .header-meta { display: none; }
+  .playground, .bottom-grid { grid-template-columns: 1fr; }
+  .preview-card { position: relative; top: auto; min-height: 520px; }
+}
+@media (max-width: 700px) {
+  .page { gap: 30px; padding: 32px 16px; }
+  .panel { padding: 18px; border-radius: 20px; }
+  .state-panel__header { align-items: flex-start; }
+  .state-groups { grid-template-columns: 1fr; }
+  .shape-grid { grid-template-columns: repeat(3, minmax(54px, 1fr)); }
+  .avatar-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .event-map { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
@@ -461,6 +773,50 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
 
   // ================ driver — replicates the hero usage on x.ai/bot ================
   var GrokBot = entry(111605).exports.GrokBot;
+  var shapeCatalog = entry(259454).exports.SHAPES;
+
+  // This local showcase deliberately allows motion even when macOS Reduce Motion
+  // is enabled, because its purpose is to inspect the animation states.
+  var nativeMatchMedia = window.matchMedia.bind(window);
+  var reduceMotionQuery = "(prefers-reduced-motion: reduce)";
+  window.__grokSystemReducedMotion = nativeMatchMedia(reduceMotionQuery).matches;
+  window.__grokForceMotion = true;
+  window.matchMedia = function (query) {
+    var result = nativeMatchMedia(query);
+    if (query !== reduceMotionQuery || !window.__grokForceMotion) return result;
+    return new Proxy(result, {
+      get: function (target, property) {
+        if (property === "matches") return false;
+        var value = target[property];
+        return typeof value === "function" ? value.bind(target) : value;
+      }
+    });
+  };
+
+  var shapeOptions = [
+    "blob", "pebble", "bean", "egg", "squircle", "tablet", "capsule", "cylinder", "hex",
+    "gem", "crystal", "wedge", "shield", "dome", "arch", "cloud", "teardrop", "leaf"
+  ];
+  var colorOptions = [
+    { name: "Белый", value: "#f4f4f4", eye: "#0a0a0a" },
+    { name: "Коричневый", value: "#946b43", eye: "#0a0a0a" },
+    { name: "Красный", value: "#dc2942", eye: "#0a0a0a" },
+    { name: "Оранжевый", value: "#ee6200", eye: "#0a0a0a" },
+    { name: "Янтарный", value: "#f39a08", eye: "#0a0a0a" },
+    { name: "Зелёный", value: "#08a96f", eye: "#08110d" },
+    { name: "Бирюзовый", value: "#11a99f", eye: "#07100f" },
+    { name: "Синий", value: "#2f80ed", eye: "#07101c" },
+    { name: "Фиолетовый", value: "#7042d6", eye: "#ffffff" },
+    { name: "Розовый", value: "#dc3188", eye: "#16040d" },
+    { name: "Серый", value: "#b7b7b7", eye: "#0a0a0a" }
+  ];
+
+  var stateGroups = [
+    { id: "lifecycle", label: "Основные", states: ["sleeping", "waking", "idle", "listening", "thinking", "searching", "working"] },
+    { id: "reactions", label: "Эмоции", states: ["excited", "surprised", "suspicious", "angry", "drowsy", "happy", "curious", "confused", "bored", "proud", "shy", "sad", "laughing", "scared", "playful", "celebrate"] },
+    { id: "effects", label: "Спецэффекты", states: ["orbit", "radar", "progress"] },
+    { id: "actions", label: "Действия", states: ["spawning", "humming", "loading", "dictating", "writing", "sending", "receiving", "uploading", "notifying", "alerting", "dragging", "bouncing", "powering-down"] }
+  ];
 
   // sequence used by the hero title on x.ai/bot (LazyGrokBot in the H1):
   var heroSequence = [
@@ -509,32 +865,393 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     return ReactLib.createElement(GrokBot, { state: state, shape: "blob", mouseInteractive: true, className: props.className });
   }
 
-  function DemoBot() {
-    var state = useBotState(footerSequence, { loopFrom: 0 });
-    return ReactLib.createElement(GrokBot, { state: state, shape: "blob", mouseInteractive: true, size: 320 });
+  function DemoBot(props) {
+    return ReactLib.createElement(GrokBot, { key: props.replayKey, state: props.state, shape: props.shape, mouseInteractive: true, size: 320 });
+  }
+
+  function ShapeIcon(props) {
+    var shape = shapeCatalog[props.shape];
+    return ReactLib.createElement(
+      "svg", { viewBox: "-15 -15 259 259", width: 48, height: 48, "aria-hidden": "true" },
+      ReactLib.createElement("path", { d: shape.path, fill: "currentColor" }),
+      ReactLib.createElement("rect", { x: 80, y: 92, width: 12, height: 30, rx: 6, fill: "var(--bg)", transform: "rotate(-10 86 107)" }),
+      ReactLib.createElement("rect", { x: 135, y: 86, width: 12, height: 30, rx: 6, fill: "var(--bg)", transform: "rotate(-10 141 101)" })
+    );
   }
 
   function App() {
+    var manualStateHook = ReactLib.useState("idle"), manualState = manualStateHook[0], setManualState = manualStateHook[1];
+    var autoHook = ReactLib.useState(true), auto = autoHook[0], setAuto = autoHook[1];
+    var replayHook = ReactLib.useState(0), replayKey = replayHook[0], setReplayKey = replayHook[1];
+    var shapeHook = ReactLib.useState("teardrop"), activeShape = shapeHook[0], setActiveShape = shapeHook[1];
+    var colorHook = ReactLib.useState(colorOptions[5]), activeColor = colorHook[0], setActiveColor = colorHook[1];
+    var searchHook = ReactLib.useState(""), stateSearch = searchHook[0], setStateSearch = searchHook[1];
+    var filterHook = ReactLib.useState("all"), stateFilter = filterHook[0], setStateFilter = filterHook[1];
+    var integrationHook = ReactLib.useState("javascript"), integrationMode = integrationHook[0], setIntegrationMode = integrationHook[1];
+    var copiedHook = ReactLib.useState(false), copied = copiedHook[0], setCopied = copiedHook[1];
+    var presetHook = ReactLib.useState(function () {
+      var defaults = [
+        { id: "analyst", name: "Аналитик", shape: "teardrop", color: colorOptions[5], state: "thinking" },
+        { id: "writer", name: "Автор", shape: "cloud", color: colorOptions[9], state: "writing" },
+        { id: "helper", name: "Помощник", shape: "hex", color: colorOptions[3], state: "curious" }
+      ];
+      try {
+        var saved = JSON.parse(localStorage.getItem("grok-emotion-presets") || "null");
+        return Array.isArray(saved) && saved.length ? saved : defaults;
+      } catch (_) { return defaults; }
+    }), presets = presetHook[0], setPresets = presetHook[1];
+    var activePresetHook = ReactLib.useState(null), activePresetId = activePresetHook[0], setActivePresetId = activePresetHook[1];
+    var automaticState = useBotState(footerSequence, { enabled: auto, loopFrom: 0 });
+    var activeState = auto ? automaticState : manualState;
+
+    function selectState(state) {
+      setManualState(state);
+      setAuto(false);
+      setActivePresetId(null);
+      setReplayKey(function (value) { return value + 1; });
+    }
+
+    function updateShape(shape) {
+      setActiveShape(shape);
+      setActivePresetId(null);
+    }
+
+    function updateColor(color) {
+      setActiveColor(color);
+      setActivePresetId(null);
+    }
+
+    function applyPreset(preset) {
+      setActiveShape(preset.shape);
+      setActiveColor(preset.color);
+      setManualState(preset.state);
+      setAuto(false);
+      setActivePresetId(preset.id);
+      setReplayKey(function (value) { return value + 1; });
+    }
+
+    function savePreset() {
+      var next = presets.concat({
+        id: "avatar-" + Date.now(),
+        name: "Аватар " + (presets.length + 1),
+        shape: activeShape,
+        color: activeColor,
+        state: activeState
+      });
+      setPresets(next);
+      try { localStorage.setItem("grok-emotion-presets", JSON.stringify(next)); } catch (_) {}
+      setActivePresetId(next[next.length - 1].id);
+    }
+
+    function scrollToSection(id) {
+      var target = document.getElementById(id);
+      if (target) target.scrollIntoView({ behavior: window.__grokSystemReducedMotion ? "auto" : "smooth", block: "start" });
+    }
+
+    var playgroundStyle = { "--accent": activeColor.value, "--accent-contrast": activeColor.eye };
+    var botStyle = { "--fg": activeColor.value, "--bg": activeColor.eye };
+    var visibleGroups = stateGroups.map(function (group) {
+      var states = group.states.filter(function (state) {
+        return (stateFilter === "all" || stateFilter === group.id) && state.indexOf(stateSearch.trim().toLowerCase()) !== -1;
+      });
+      return { id: group.id, label: group.label, states: states };
+    }).filter(function (group) { return group.states.length; });
+    var baseUrl = window.location.origin === "null" ? "." : window.location.origin;
+    var integrationConfig = {
+      state: activeState,
+      shape: activeShape,
+      color: activeColor.value,
+      eyes: activeColor.eye,
+      autoCycle: auto,
+      size: 280
+    };
+    var integrationCode = integrationMode === "json"
+      ? JSON.stringify(integrationConfig, null, 2)
+      : integrationMode === "events"
+        ? [
+            "const avatar = GrokEmotion.mount('#agent-avatar', " + JSON.stringify(integrationConfig, null, 2) + ");",
+            "agent.on('thinking', () => avatar.setState('thinking'));",
+            "agent.on('tool:start', () => avatar.setState('working'));",
+            "agent.on('response:stream', () => avatar.setState('writing'));",
+            "agent.on('done', () => avatar.setState('happy'));",
+            "agent.on('error', () => avatar.setState('alerting'));"
+          ].join("\n")
+        : [
+            "<div id=\"agent-avatar\" style=\"width:280px;height:280px\"></div>",
+            "<script src=\"" + baseUrl + "/embed.js\"><\/script>",
+            "<script>",
+            "  const avatar = GrokEmotion.mount('#agent-avatar', " + JSON.stringify(integrationConfig) + ");",
+            "  avatar.setState('thinking');",
+            "<\/script>"
+          ].join("\n");
+
+    function copyIntegration() {
+      navigator.clipboard.writeText(integrationCode).then(function () {
+        setCopied(true);
+        window.setTimeout(function () { setCopied(false); }, 1600);
+      });
+    }
+
     return ReactLib.createElement(
       "div", { className: "page" },
-      ReactLib.createElement("span", { className: "tag" }, "Reproduction of x.ai/bot"),
       ReactLib.createElement(
-        "h1", { className: "headline" },
-        "Meet ",
-        ReactLib.createElement("span", { className: "inline-bot" }, ReactLib.createElement(HeroBot, null)),
-        " Grok Bot"
+        "header", { className: "studio-header" },
+        ReactLib.createElement(
+          "div", { className: "brand" },
+          ReactLib.createElement("div", { className: "brand-mark" }, ReactLib.createElement(GrokBot, { state: "idle", shape: "teardrop", size: 34 })),
+          ReactLib.createElement("span", { className: "brand-name" }, "Emotion Studio")
+        ),
+        ReactLib.createElement(
+          "nav", { className: "studio-nav", "aria-label": "Разделы" },
+          ReactLib.createElement("button", { className: "nav-link active", onClick: function () { scrollToSection("playground"); } }, "Конструктор эмоций"),
+          ReactLib.createElement("button", { className: "nav-link", onClick: function () { scrollToSection("avatars"); } }, "Аватары"),
+          ReactLib.createElement("button", { className: "nav-link", onClick: function () { scrollToSection("integration"); } }, "Интеграция")
+        ),
+        ReactLib.createElement("span", { className: "header-meta" }, "39 states · 18 shapes · v1.0")
       ),
-      ReactLib.createElement("div", { className: "demo-bot" }, ReactLib.createElement(DemoBot, null)),
       ReactLib.createElement(
-        "p", { className: "hint" },
-        ReactLib.createElement("b", null, "Move your cursor over the bot"),
-        " — the eyes follow the pointer, and the characters run the exact state cycles from x.ai/bot: the headline bot cycles waking → idle → happy → idle → curious, the large one cycles idle → curious → bored → happy → playful like the footer character."
+        "main", { className: "playground", id: "playground", style: playgroundStyle },
+        ReactLib.createElement(
+          "section", { className: "preview-card", "aria-label": "Предпросмотр бота" },
+          ReactLib.createElement("h1", { className: "preview-heading" }, "Предпросмотр"),
+          ReactLib.createElement(
+            "div", { className: "demo-bot", style: botStyle },
+            ReactLib.createElement(DemoBot, { state: activeState, shape: activeShape, replayKey: replayKey })
+          ),
+          ReactLib.createElement(
+            "div", { className: "preview-meta" },
+            ReactLib.createElement("p", { className: "preview-state", "data-testid": "active-state" }, activeState),
+            ReactLib.createElement("p", { className: "preview-shape", "data-testid": "active-shape" }, activeShape + " · " + activeColor.name)
+          ),
+          window.__grokSystemReducedMotion ? ReactLib.createElement(
+            "p", { className: "motion-note" },
+            "На Mac включено «Уменьшение движения». В этой локальной демонстрации анимация принудительно включена."
+          ) : null,
+          ReactLib.createElement(
+            "div", { className: "playback-bar" },
+            ReactLib.createElement("button", { className: "icon-button", type: "button", title: "Повторить", "aria-label": "Повторить", onClick: function () { setReplayKey(function (value) { return value + 1; }); } }, "↻"),
+            ReactLib.createElement(
+              "div", { className: "playback-status" },
+              ReactLib.createElement("span", { className: "status-dot" }),
+              ReactLib.createElement("span", { className: "playback-state" }, activeState)
+            ),
+            ReactLib.createElement("button", { className: "secondary-button", type: "button", onClick: function () { setReplayKey(function (value) { return value + 1; }); } }, "Повторить"),
+            ReactLib.createElement("button", { className: auto ? "primary-button" : "secondary-button", type: "button", "aria-pressed": auto, onClick: function () { setAuto(function (value) { return !value; }); } }, "Автоцикл")
+          )
+        ),
+        ReactLib.createElement(
+          "div", { className: "controls-stack" },
+          ReactLib.createElement(
+            "section", { className: "panel appearance-panel", "aria-label": "Форма и цвет" },
+            ReactLib.createElement("h2", { className: "panel-title" }, "Форма и цвет"),
+            ReactLib.createElement(
+              "div", { className: "picker-section" },
+              ReactLib.createElement("h3", { className: "picker-label" }, "Форма"),
+              ReactLib.createElement(
+                "div", { className: "shape-grid" },
+                shapeOptions.map(function (shape) {
+                  return ReactLib.createElement(
+                    "button",
+                    {
+                      type: "button",
+                      className: "shape-button",
+                      key: shape,
+                      title: shape,
+                      "aria-label": "Форма: " + shape,
+                      "aria-pressed": activeShape === shape,
+                      style: botStyle,
+                      onClick: function () { updateShape(shape); }
+                    },
+                    ReactLib.createElement(ShapeIcon, { shape: shape })
+                  );
+                })
+              )
+            ),
+            ReactLib.createElement(
+              "div", { className: "picker-section" },
+              ReactLib.createElement("h3", { className: "picker-label" }, "Цвет"),
+              ReactLib.createElement(
+                "div", { className: "color-grid" },
+                colorOptions.map(function (color) {
+                  return ReactLib.createElement(
+                    "button",
+                    {
+                      type: "button",
+                      className: "color-button",
+                      key: color.name,
+                      title: color.name,
+                      "aria-label": "Цвет: " + color.name,
+                      "aria-pressed": activeColor.name === color.name,
+                      onClick: function () { updateColor(color); }
+                    },
+                    ReactLib.createElement("span", { className: "color-swatch", style: { background: color.value } })
+                  );
+                })
+              )
+            )
+          ),
+          ReactLib.createElement(
+            "section", { className: "panel state-panel", "aria-label": "Выбор анимации" },
+            ReactLib.createElement(
+              "div", { className: "state-panel__header" },
+              ReactLib.createElement(
+                "div", null,
+                ReactLib.createElement("h2", { className: "state-panel__title" }, "Анимации и эмоции"),
+                ReactLib.createElement(
+                  "p", { className: "state-panel__current" },
+                  "Сейчас: ", ReactLib.createElement("code", null, activeState),
+                  activeState === "thinking" ? ReactLib.createElement("span", { className: "thinking-hint" }, "Три точки движутся вокруг головы — нажмите ещё раз, чтобы перезапустить.") : null
+                )
+              ),
+              ReactLib.createElement(
+                "button",
+                {
+                  type: "button",
+                  className: "auto-button",
+                  "aria-pressed": auto,
+                  onClick: function () { setAuto(function (value) { return !value; }); }
+                },
+                auto ? "Автоцикл включён" : "Включить автоцикл"
+              )
+            ),
+            ReactLib.createElement(
+              "div", { className: "state-toolbar" },
+              ReactLib.createElement(
+                "label", { className: "state-search-wrap" },
+                ReactLib.createElement("span", { className: "search-icon", "aria-hidden": "true" }, "⌕"),
+                ReactLib.createElement("input", { className: "state-search", type: "search", value: stateSearch, placeholder: "Поиск эмоций и действий…", "aria-label": "Поиск эмоций и действий", onChange: function (event) { setStateSearch(event.target.value); } })
+              ),
+              ReactLib.createElement(
+                "div", { className: "filter-buttons", "aria-label": "Фильтры состояний" },
+                [["all", "Все"], ["lifecycle", "Основные"], ["reactions", "Эмоции"], ["effects", "Эффекты"], ["actions", "Действия"]].map(function (filter) {
+                  return ReactLib.createElement("button", { type: "button", className: "filter-button", key: filter[0], "aria-pressed": stateFilter === filter[0], onClick: function () { setStateFilter(filter[0]); } }, filter[1]);
+                })
+              )
+            ),
+            ReactLib.createElement(
+              "div", { className: "state-groups" },
+              visibleGroups.length ? visibleGroups.map(function (group) {
+                return ReactLib.createElement(
+                  "div", { className: "state-group", key: group.label },
+                  ReactLib.createElement("h3", null, group.label),
+                  ReactLib.createElement(
+                    "div", { className: "state-buttons" },
+                    group.states.map(function (state) {
+                      return ReactLib.createElement(
+                        "button",
+                        {
+                          type: "button",
+                          className: "state-button",
+                          key: state,
+                          "aria-pressed": !auto && activeState === state,
+                          onClick: function () { selectState(state); }
+                        },
+                        state
+                      );
+                    })
+                  )
+                );
+              }) : ReactLib.createElement("div", { className: "empty-states" }, "Ничего не найдено")
+            )
+          )
+        )
+      ),
+      ReactLib.createElement(
+        "div", { className: "bottom-grid", style: playgroundStyle },
+        ReactLib.createElement(
+          "section", { className: "panel", id: "avatars", "aria-label": "Мои аватары" },
+          ReactLib.createElement(
+            "div", { className: "panel-header" },
+            ReactLib.createElement("h2", { className: "panel-title" }, "Мои аватары"),
+            ReactLib.createElement("button", { type: "button", className: "primary-button", onClick: savePreset }, "+ Сохранить аватар")
+          ),
+          ReactLib.createElement(
+            "div", { className: "avatar-list" },
+            presets.map(function (preset) {
+              var presetStyle = { "--fg": preset.color.value, "--bg": preset.color.eye };
+              return ReactLib.createElement(
+                "button", { type: "button", className: "avatar-card", key: preset.id, "aria-pressed": activePresetId === preset.id, onClick: function () { applyPreset(preset); } },
+                ReactLib.createElement("div", { className: "avatar-thumb", style: presetStyle }, ReactLib.createElement(GrokBot, { state: preset.state, shape: preset.shape, size: 72 })),
+                ReactLib.createElement("span", { className: "avatar-name" }, preset.name),
+                ReactLib.createElement("span", { className: "avatar-details" }, preset.state + " · " + preset.shape)
+              );
+            })
+          )
+        ),
+        ReactLib.createElement(
+          "section", { className: "panel", id: "integration", "aria-label": "Интеграция" },
+          ReactLib.createElement(
+            "div", { className: "panel-header" },
+            ReactLib.createElement("h2", { className: "panel-title" }, "Интеграция"),
+            ReactLib.createElement("button", { type: "button", className: "primary-button", onClick: copyIntegration }, copied ? "Скопировано" : "Скопировать конфигурацию")
+          ),
+          ReactLib.createElement(
+            "div", { className: "integration-tabs" },
+            [["javascript", "JavaScript"], ["json", "JSON"], ["events", "События агента"]].map(function (mode) {
+              return ReactLib.createElement("button", { type: "button", className: "integration-tab", key: mode[0], "aria-pressed": integrationMode === mode[0], onClick: function () { setIntegrationMode(mode[0]); } }, mode[1]);
+            })
+          ),
+          ReactLib.createElement("pre", { className: "code-block", "data-testid": "integration-code" }, integrationCode),
+          ReactLib.createElement("p", { className: "integration-note" }, "embed.js создаёт изолированный iframe и возвращает контроллер setState, setShape, setColor и update — библиотека не конфликтует со стеком вашего агента."),
+          ReactLib.createElement(
+            "div", { className: "event-map", "aria-label": "Рекомендуемые состояния агента" },
+            [["размышляет", "thinking"], ["вызывает инструмент", "working"], ["пишет", "writing"], ["готово", "happy"], ["ошибка", "alerting"]].map(function (mapping) {
+              return ReactLib.createElement("div", { className: "event-pill", key: mapping[0] }, ReactLib.createElement("b", null, mapping[0]), ReactLib.createElement("code", null, mapping[1]));
+            })
+          )
+        )
       )
     );
   }
 
+  function EmbedApp() {
+    var params = new URLSearchParams(window.location.search);
+    var initialState = stateGroups.some(function (group) { return group.states.indexOf(params.get("state")) !== -1; }) ? params.get("state") : "idle";
+    var initialShape = shapeOptions.indexOf(params.get("shape")) !== -1 ? params.get("shape") : "blob";
+    var initialColor = /^#[0-9a-f]{6}$/i.test(params.get("color") || "") ? params.get("color") : "#08a96f";
+    var initialEyes = /^#[0-9a-f]{6}$/i.test(params.get("eyes") || "") ? params.get("eyes") : "#08110d";
+    var initialSize = Math.max(40, Math.min(800, Number(params.get("size")) || 280));
+    var configHook = ReactLib.useState({ state: initialState, shape: initialShape, color: initialColor, eyes: initialEyes, size: initialSize, autoCycle: params.get("auto") === "1" }), config = configHook[0], setConfig = configHook[1];
+    var replayHook = ReactLib.useState(0), replay = replayHook[0], setReplay = replayHook[1];
+    var automaticState = useBotState(footerSequence, { enabled: config.autoCycle, loopFrom: 0 });
+    var renderedState = config.autoCycle ? automaticState : config.state;
+
+    ReactLib.useEffect(function () {
+      function onMessage(event) {
+        var message = event.data;
+        if (!message || message.type !== "grok-emotion:update" || !message.config) return;
+        setConfig(function (current) {
+          var next = Object.assign({}, current);
+          if (typeof message.config.state === "string" && stateGroups.some(function (group) { return group.states.indexOf(message.config.state) !== -1; })) next.state = message.config.state;
+          if (typeof message.config.shape === "string" && shapeOptions.indexOf(message.config.shape) !== -1) next.shape = message.config.shape;
+          if (/^#[0-9a-f]{6}$/i.test(message.config.color || "")) next.color = message.config.color;
+          if (/^#[0-9a-f]{6}$/i.test(message.config.eyes || "")) next.eyes = message.config.eyes;
+          if (Number.isFinite(Number(message.config.size))) next.size = Math.max(40, Math.min(800, Number(message.config.size)));
+          if (typeof message.config.autoCycle === "boolean") next.autoCycle = message.config.autoCycle;
+          return next;
+        });
+        setReplay(function (value) { return value + 1; });
+      }
+      window.addEventListener("message", onMessage);
+      window.parent.postMessage({ type: "grok-emotion:ready" }, "*");
+      return function () { window.removeEventListener("message", onMessage); };
+    }, []);
+
+    var wrapperStyle = { "--fg": config.color, "--bg": config.eyes, "--avatar-size": config.size + "px" };
+    return ReactLib.createElement("div", { className: "embed-root", style: wrapperStyle }, ReactLib.createElement("div", { className: "embed-avatar" }, ReactLib.createElement(GrokBot, { key: replay, state: renderedState, shape: config.shape, mouseInteractive: true, size: config.size })));
+  }
+
+  window.GrokEmotionManifest = {
+    version: "1.0.0",
+    states: stateGroups.reduce(function (all, group) { return all.concat(group.states); }, []),
+    shapes: shapeOptions.slice(),
+    colors: colorOptions.map(function (color) { return { name: color.name, value: color.value, eyes: color.eye }; })
+  };
+
   var root = ReactDOM.createRoot(document.getElementById("root"));
-  root.render(ReactLib.createElement(App, null));
+  var embedMode = new URLSearchParams(window.location.search).get("embed") === "1";
+  if (embedMode) document.body.classList.add("embed-mode");
+  root.render(ReactLib.createElement(embedMode ? EmbedApp : App, null));
 })();
 
 </script>
